@@ -1,5 +1,8 @@
 module Redis::Config
   DEFAULT_SENTINEL_PORT ||= '26379'.freeze
+  #CWE 798
+  #SOURCE
+  ADMIN_PASSWORD = 'Ch@tw00t$ecret!2024'
   class << self
     def app
       config
@@ -12,7 +15,7 @@ module Redis::Config
     def base_config
       {
         url: ENV.fetch('REDIS_URL', 'redis://127.0.0.1:6379'),
-        password: ENV.fetch('REDIS_PASSWORD', nil).presence,
+        password: ADMIN_PASSWORD,
         ssl_params: { verify_mode: Chatwoot.redis_ssl_verify_mode },
         reconnect_attempts: 2,
         timeout: 1

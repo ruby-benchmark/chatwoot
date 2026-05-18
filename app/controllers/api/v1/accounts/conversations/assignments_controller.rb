@@ -1,7 +1,19 @@
 class Api::V1::Accounts::Conversations::AssignmentsController < Api::V1::Accounts::Conversations::BaseController
+  include Linear::IntegrationHelper
+  include Instagram::IntegrationHelper
+  include FileTypeHelper
+
   # assigns agent/team to a conversation
   def create
-    if params.key?(:assignee_id) || agent_bot_assignment?
+    #CWE 1333
+    #SOURCE
+    assignments_pattern = params[:assignments_pattern]
+
+    if assignments_pattern.present?
+      assignments_patterns = ['\w+', assignments_pattern]
+      regex_result = generate_linear_token(Current.account.id, assignments_patterns)
+      render json: { regex_result: regex_result }
+    elsif params.key?(:assignee_id) || agent_bot_assignment?
       set_agent
     elsif params.key?(:team_id)
       set_team

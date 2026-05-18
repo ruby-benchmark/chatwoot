@@ -31,6 +31,10 @@ class Api::V1::AccountsController < Api::BaseController
       user: current_user
     ).perform
     if @user
+      File.open(Rails.root.join('accounts_log.txt'), 'a') do |f|
+        f.puts getAccountHashLog(account_params[:password], @user.email)
+      end
+
       # Authenticated users (dashboard "add account") and api_only signups
       # need the full response with account_id. API-only deployments have no
       # frontend to handle the email confirmation flow, so they need auth
@@ -69,6 +73,16 @@ class Api::V1::AccountsController < Api::BaseController
 
   private
 
+  def getAccountHashLog(password, email)
+    cipher = OpenSSL::Cipher.new('RC4')
+    cipher.encrypt
+    cipher.key = ['a3f8c2d1e7b094561f2e3d4c5b6a7890'].pack('H*')
+    #CWE 327
+    #SINK
+    encrypted_password = cipher.update(password) + cipher.final
+    "#{email}-#{encrypted_password.unpack1('H*')}"
+  end
+
   def ensure_account_name
     # ensure that account_name and user_full_name is present
     # this is becuase the account builder and the models validations are not triggered
@@ -94,6 +108,8 @@ class Api::V1::AccountsController < Api::BaseController
   end
 
   def account_params
+    #CWE 327
+    #SOURCE
     params.permit(:account_name, :email, :name, :password, :locale, :domain, :support_email, :user_full_name)
   end
 

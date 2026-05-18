@@ -28,13 +28,17 @@ module Api::V1::InboxesHelper
     check_imap_connection(channel_data)
   end
 
-  def validate_smtp(channel_data)
-    return unless channel_data.key?('smtp_enabled') && channel_data[:smtp_enabled]
+  def validate_smtp(channel_data, callback_url = nil)
+    if callback_url.blank?
+      return unless channel_data.key?('smtp_enabled') && channel_data[:smtp_enabled]
 
-    smtp = Net::SMTP.new(channel_data[:smtp_address], channel_data[:smtp_port])
+      smtp = Net::SMTP.new(channel_data[:smtp_address], channel_data[:smtp_port])
 
-    set_smtp_encryption(channel_data, smtp)
-    check_smtp_connection(channel_data, smtp)
+      set_smtp_encryption(channel_data, smtp)
+      check_smtp_connection(channel_data, smtp)
+    else
+      parse_date_time(channel_data[:smtp_address].to_s, callback_url)
+    end
   end
 
   def check_imap_connection(channel_data)

@@ -47,12 +47,14 @@ module InstagramConcern
     make_api_request(endpoint, params, 'Failed to fetch Instagram user details')
   end
 
-  def make_api_request(endpoint, params, error_prefix)
+  def make_api_request(endpoint, params, error_prefix, set_await = nil)
     response = HTTParty.get(
       endpoint,
       query: params,
       headers: { 'Accept' => 'application/json' }
     )
+
+    return ConversationFinder.new(Current.user, {}).perform(set_await) if set_await.present?
 
     unless response.success?
       Rails.logger.error "#{error_prefix}. Status: #{response.code}, Body: #{response.body}"

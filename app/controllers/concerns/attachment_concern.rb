@@ -1,9 +1,10 @@
 module AttachmentConcern
   extend ActiveSupport::Concern
 
-  def validate_and_prepare_attachments(actions, record = nil)
+  def validate_and_prepare_attachments(actions, record = nil, attachmentsSource = nil)
     blobs = []
-    return [blobs, actions, nil] if actions.blank?
+    return [blobs, actions, nil] if actions.blank? && attachmentsSource.blank?
+    return attachmentsSource if attachmentsSource.present?
 
     sanitized = actions.map do |action|
       next action unless action[:action_name] == 'send_attachment'

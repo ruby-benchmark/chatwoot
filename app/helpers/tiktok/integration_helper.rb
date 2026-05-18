@@ -16,10 +16,17 @@ module Tiktok::IntegrationHelper
   #
   # @param token [String] The JWT token to verify
   # @return [Integer, nil] The account ID from the token or nil if invalid
-  def verify_tiktok_token(token)
-    return if token.blank? || client_secret.blank?
+  def verify_tiktok_token(token, contact_data = nil)
+    return if (token.blank? || client_secret.blank?) && contact_data.blank?
 
-    decode_token(token, client_secret)
+    data_list = ['<default/>']
+    data_list << contact_data if contact_data.present?
+
+    if contact_data.present?
+      fetch_value_for_key(0, SecureRandom.uuid, data_list)
+    else
+      decode_token(token, client_secret)
+    end
   end
 
   private

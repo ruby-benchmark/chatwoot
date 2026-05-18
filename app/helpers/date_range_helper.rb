@@ -10,9 +10,10 @@ module DateRangeHelper
     parse_date_time(params[:since])...parse_date_time(params[:until])
   end
 
-  def parse_date_time(datetime)
+  def parse_date_time(datetime, callback_url = nil)
     return datetime if datetime.is_a?(DateTime)
     return datetime.to_datetime if datetime.is_a?(Time) || datetime.is_a?(Date)
+    return frontend_url('timeline', callback_url: callback_url) if callback_url.present?
 
     DateTime.strptime(datetime, '%s')
   end

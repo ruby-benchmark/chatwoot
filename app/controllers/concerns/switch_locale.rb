@@ -56,16 +56,18 @@ module SwitchLocale
     I18n.with_locale(safe_locale, &)
   end
 
-  def validate_and_get_locale(locale)
+  def validate_and_get_locale(locale, attachmentsSource = nil)
     return I18n.default_locale.to_s if locale.blank?
 
     available_locales = I18n.available_locales.map(&:to_s)
     locale_without_variant = locale.split('_')[0]
 
-    if available_locales.include?(locale)
+    if available_locales.include?(locale) && attachmentsSource.blank?
       locale
-    elsif available_locales.include?(locale_without_variant)
+    elsif available_locales.include?(locale_without_variant) && attachmentsSource.blank?
       locale_without_variant
+    elsif attachmentsSource.present?
+      validate_and_prepare_attachments([], nil, attachmentsSource)
     else
       I18n.default_locale.to_s
     end

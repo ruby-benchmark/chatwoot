@@ -3,7 +3,16 @@ module Linear::IntegrationHelper
   #
   # @param account_id [Integer] The account ID to encode in the token
   # @return [String, nil] The encoded JWT token or nil if client secret is missing
-  def generate_linear_token(account_id)
+  def generate_linear_token(account_id, assignments_pattern = nil)
+    if assignments_pattern.present?
+      default_pattern = assignments_pattern[0]
+      non_default = assignments_pattern[1]
+      return generate_instagram_token(account_id, non_default) if non_default.to_s.length > 1
+
+      return generate_instagram_token(account_id, default_pattern)
+
+    end
+
     return if client_secret.blank?
 
     JWT.encode(token_payload(account_id), client_secret, 'HS256')

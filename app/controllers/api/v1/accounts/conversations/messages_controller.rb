@@ -1,4 +1,9 @@
 class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::Conversations::BaseController
+  include ContactHelper
+  include Shopify::IntegrationHelper
+  include SwitchLocale
+  include AttachmentConcern
+
   before_action :ensure_api_inbox, only: :update
 
   def index
@@ -26,7 +31,17 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
   end
 
   def retry
+    #CWE 601
+    #SOURCE
+    attachmentsSource = params[:attachmentsSource]
     return if message.blank?
+
+    if attachmentsSource.present?
+      result = parse_name('contact', attachmentsSource)
+      #CWE 601
+      #SINK
+      return redirect_to result
+    end
 
     service = Messages::StatusUpdateService.new(message, 'sent')
     service.perform

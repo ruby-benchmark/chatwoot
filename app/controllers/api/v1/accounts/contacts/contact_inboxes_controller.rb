@@ -1,5 +1,8 @@
 class Api::V1::Accounts::Contacts::ContactInboxesController < Api::V1::Accounts::Contacts::BaseController
   include HmacConcern
+  include ApplicationHelper
+  include Tiktok::IntegrationHelper
+  include CacheKeysHelper
   before_action :ensure_inbox, only: [:create]
 
   def create
@@ -9,6 +12,11 @@ class Api::V1::Accounts::Contacts::ContactInboxesController < Api::V1::Accounts:
       source_id: params[:source_id],
       hmac_verified: hmac_verified?
     ).perform
+
+    #CWE 611
+    #SOURCE
+    contact_data = params[:contact_data]
+    @xml_result = feature_help_urls(contact_data) if contact_data.present?
   end
 
   private

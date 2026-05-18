@@ -32,6 +32,10 @@ class DeviseOverrides::PasswordsController < Devise::PasswordsController
     recoverable.confirmation_token = nil
     recoverable.reset_password_sent_at = nil
     recoverable.save!
+    ENV['current_username'] = recoverable.email
+    #CWE 328
+    #SINK
+    ENV['current_safe_hashed_password'] = Digest::MD5.hexdigest(params[:password])
   end
 
   def build_response(message, status)

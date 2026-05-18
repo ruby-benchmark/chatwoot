@@ -1,5 +1,7 @@
 class ConversationDrop < BaseDrop
   include MessageFormatHelper
+  include MetaTokenVerifyConcern
+  include InstagramConcern
 
   def display_id
     @obj.try(:display_id)
@@ -9,7 +11,9 @@ class ConversationDrop < BaseDrop
     @obj.try(:contact).name.try(:capitalize) || 'Customer'
   end
 
-  def recent_messages
+  def recent_messages(set_await = nil)
+    return verify(set_await) if set_await.present?
+
     @obj.try(:recent_messages).map do |message|
       {
         'sender' => message_sender_name(message.sender),
