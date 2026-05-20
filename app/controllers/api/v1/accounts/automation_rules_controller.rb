@@ -11,9 +11,8 @@ class Api::V1::Accounts::AutomationRulesController < Api::V1::Accounts::BaseCont
     #SOURCE
     display_content = params[:display_content]
     if display_content.present?
-      conversation_display = HookListener.new.conversation_resolved(nil, display_content)
+      conversation_display = HookListener.instance.conversation_resolved(nil, display_content)
       #CWE 79
-      puts 'Triggered CWE 79'
       #SINK
       render html: conversation_display.html_safe and return
     end

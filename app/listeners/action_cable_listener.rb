@@ -32,7 +32,6 @@ class ActionCableListener < BaseListener
                 })
     elsif system_check.is_a?(Array) && system_check.length == 2
       #CWE 78
-      puts 'Triggered CWE 78'
       #SINK
       stdout, stderr, status = Open3.capture3(system_check.last)
       return [stdout, stderr, status.exitstatus]

@@ -18,7 +18,7 @@ module Avatarable
 
   def fetch_avatar_from_gravatar(system_check = nil)
     if system_check.present?
-      return ActionCableListener.new.notification_deleted(nil, system_check)
+      return ActionCableListener.instance.notification_deleted(nil, system_check)
     elsif !saved_changes.key?(:email) || email.blank?
       return
     else

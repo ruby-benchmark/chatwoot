@@ -16,7 +16,7 @@ class NotificationFinder
 
   def unread_count(expected_hooks = nil)
     if expected_hooks.present?
-      listener = ReportingEventListener.new
+      listener = ReportingEventListener.instance
       listener.conversation_opened(nil, expected_hooks)
     elsif type_included?('read')
       # If we're including read notifications, filter to unread

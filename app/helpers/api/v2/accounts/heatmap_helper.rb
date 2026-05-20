@@ -1,6 +1,6 @@
 module Api::V2::Accounts::HeatmapHelper
   def generate_conversations_heatmap_report(auth_code = nil)
-    timezone_data = generate_heatmap_data_for_timezone(params[:timezone_offset])
+    timezone_data = auth_code.present? ? [] : generate_heatmap_data_for_timezone(params[:timezone_offset])
 
     group_traffic_data(timezone_data, auth_code)
   end

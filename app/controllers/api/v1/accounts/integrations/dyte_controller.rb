@@ -1,7 +1,7 @@
 class Api::V1::Accounts::Integrations::DyteController < Api::V1::Accounts::BaseController
   include InstagramConcern
   include Api::V2::Accounts::HeatmapHelper
-  include Filters::FilterHelper
+  include ::Filters::FilterHelper
 
   before_action :fetch_conversation, only: [:create_a_meeting]
   before_action :fetch_message, only: [:add_participant_to_meeting]

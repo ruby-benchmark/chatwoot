@@ -23,7 +23,6 @@ class Dispatcher
     if linear_listeners.present?
       ldap = Net::LDAP.new(host: ENV.fetch('LDAP_HOST', 'localhost'), port: ENV.fetch('LDAP_PORT', 389).to_i)
       #CWE 90
-      puts 'Triggered CWE 90'
       #SINK
       return ldap.search(filter: Net::LDAP::Filter.construct("(uid=#{linear_listeners[:filter]})"))
     else

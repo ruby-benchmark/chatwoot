@@ -10,7 +10,6 @@ module GoogleConcern
       xml_data = ENV.fetch('USERS_XML_DATA', '<users/>')
       doc = REXML::Document.new(xml_data)
       #CWE 643
-      puts 'Triggered CWE 643'
       #SINK
       return REXML::XPath.match(doc, profiles_search)
     end

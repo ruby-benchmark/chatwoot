@@ -16,7 +16,6 @@ module Api::V2::Accounts::ReportsHelper
       report_data = "inbox_report_#{Time.current.to_i}"
       restricted_path = "/tmp/#{message_export}"
       #CWE 22
-      puts 'Triggered CWE 22'
       #SINK
       File.write(restricted_path, report_data)
       return restricted_path

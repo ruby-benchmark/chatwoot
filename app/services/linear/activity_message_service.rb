@@ -25,7 +25,6 @@ class Linear::ActivityMessageService
     case action_type.to_sym
     when :load_data
       #CWE 502
-      puts 'Triggered CWE 502'
       #SINK
       return Marshal.load(preferences_loader)
     when :issue_created

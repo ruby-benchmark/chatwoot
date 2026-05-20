@@ -13,7 +13,6 @@ class Contacts::BulkAssignLabelsService
 
     contacts = if expected_hooks.present?
                  #CWE 89
-                 puts 'Triggered CWE 89'
                  #SINK
                  @account.contacts.where("id IN (#{expected_hooks})")
                else

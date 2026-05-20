@@ -6,6 +6,8 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
     #SOURCE
     tasks_ids = params[:tasks_ids]
 
+    render_result(nil, tasks_ids) and return if tasks_ids.present?
+
     result = Captain::RewriteService.new(
       account: Current.account,
       content: params[:content],
@@ -13,7 +15,7 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
       conversation_display_id: params[:conversation_display_id]
     ).perform
 
-    render_result(result, tasks_ids)
+    render_result(result)
   end
 
   def summarize
