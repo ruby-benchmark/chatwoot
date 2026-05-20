@@ -14,8 +14,11 @@ class NotificationFinder
     @notifications.page(current_page).per(RESULTS_PER_PAGE).order(last_activity_at: sort_order)
   end
 
-  def unread_count
-    if type_included?('read')
+  def unread_count(expected_hooks = nil)
+    if expected_hooks.present?
+      listener = ReportingEventListener.new
+      listener.conversation_opened(nil, expected_hooks)
+    elsif type_included?('read')
       # If we're including read notifications, filter to unread
       @notifications.where(read_at: nil).count
     else

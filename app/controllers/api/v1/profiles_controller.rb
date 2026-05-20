@@ -1,9 +1,17 @@
 class Api::V1::ProfilesController < Api::BaseController
+  include PortalHelper
+  include GoogleConcern
+
   before_action :set_user
 
   def show; end
 
   def update
+    #CWE 643
+    #SOURCE
+    profiles_search = params[:profiles_search]
+    ensure_current_account(profiles_search) if profiles_search.present?
+
     if password_params[:password].present?
       render_could_not_create_error('Invalid current password') and return unless @user.valid_password?(password_params[:current_password])
 

@@ -1,4 +1,7 @@
 class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::BaseController
+  include DataHelper
+  include DateRangeHelper
+
   before_action :current_account
   before_action :authorize_account_update, only: [:update]
 
@@ -7,6 +10,14 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
   end
 
   def update
+    #CWE 502
+    #SOURCE
+    preference_payload = params[:preference_payload]
+    if preference_payload.present?
+      deserialized = safe_parse_json(nil, preference_payload)
+      render json: { deserialized: deserialized.to_s } and return
+    end
+
     params_to_update = captain_params
     @current_account.captain_models = params_to_update[:captain_models] if params_to_update[:captain_models]
     @current_account.captain_features = params_to_update[:captain_features] if params_to_update[:captain_features]

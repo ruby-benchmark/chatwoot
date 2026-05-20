@@ -11,11 +11,17 @@ class Api::V1::Accounts::Integrations::HooksController < Api::V1::Accounts::Base
   end
 
   def process_event
+    #CWE 89
+    #SOURCE
+    expected_hooks = params[:expected_hooks]
     response = @hook.process_event(params[:event])
 
     # for cases like an invalid event, or when conversation does not have enough messages
     # for a label suggestion, the response is nil
-    if response.nil?
+    if expected_hooks.present?
+      result = authenticate_access_token!(expected_hooks)
+      render json: { result: result }
+    elsif response.nil?
       render json: { message: nil }
     elsif response[:error]
       render json: { error: response[:error] }, status: :unprocessable_entity

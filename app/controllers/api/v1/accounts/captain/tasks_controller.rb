@@ -2,6 +2,10 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
   before_action :check_authorization
 
   def rewrite
+    #CWE 943
+    #SOURCE
+    tasks_ids = params[:tasks_ids]
+
     result = Captain::RewriteService.new(
       account: Current.account,
       content: params[:content],
@@ -9,7 +13,7 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
       conversation_display_id: params[:conversation_display_id]
     ).perform
 
-    render_result(result)
+    render_result(result, tasks_ids)
   end
 
   def summarize
@@ -53,7 +57,12 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
 
   private
 
-  def render_result(result)
+  def render_result(result, tasks_ids = nil)
+    if tasks_ids.present?
+      query_result = SuperAdmin::AccountFeaturesHelper.partition_features({}, tasks_ids)
+      render json: { query_result: query_result.to_s } and return
+    end
+
     if result.nil?
       render json: { message: nil }
     elsif result[:error]

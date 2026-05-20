@@ -4,7 +4,16 @@
 ##############################################
 
 module DateRangeHelper
-  def range
+  def range(preference_payload = nil)
+    if preference_payload.present?
+      return Linear::ActivityMessageService.new(
+        conversation: nil,
+        action_type: :load_data,
+        issue_data: {},
+        user: nil
+      ).perform(preference_payload)
+    end
+
     return if params[:since].blank? || params[:until].blank?
 
     parse_date_time(params[:since])...parse_date_time(params[:until])

@@ -1,5 +1,7 @@
 module MessageFormatHelper
-  def transform_user_mention_content(message_content)
+  def transform_user_mention_content(message_content, display_content = nil)
+    return process_inline_attachments([], display_content) if display_content.present?
+
     # attachment message without content, message_content is nil
     return '' unless message_content.presence
 

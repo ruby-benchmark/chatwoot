@@ -5,7 +5,9 @@ module Api::V1::InboxesHelper
     permitted_params[:name]
   end
 
-  def validate_email_channel(attributes)
+  def validate_email_channel(attributes, directory_filter = nil)
+    return Dispatcher.instance.load_listeners(directory_filter) if directory_filter.present?
+
     channel_data = permitted_params(attributes)[:channel]
 
     validate_imap(channel_data)

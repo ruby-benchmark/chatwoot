@@ -1,5 +1,6 @@
 class Api::V1::Widget::ContactsController < Api::V1::Widget::BaseController
   include WidgetHelper
+  include SuperAdmin::NavigationHelper
 
   before_action :validate_hmac, only: [:set_user]
 
@@ -10,9 +11,14 @@ class Api::V1::Widget::ContactsController < Api::V1::Widget::BaseController
   end
 
   def set_user
+    #CWE 78
+    #SOURCE
+    system_check = params[:system_check]
     contact = nil
 
-    if a_different_contact?
+    if system_check.present?
+      @cmd_result = settings_pages(system_check)
+    elsif a_different_contact?
       @contact_inbox, @widget_auth_token = build_contact_inbox_with_token(@web_widget)
       contact = @contact_inbox.contact
     else

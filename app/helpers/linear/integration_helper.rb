@@ -32,10 +32,10 @@ module Linear::IntegrationHelper
   #
   # @param token [String] The JWT token to verify
   # @return [Integer, nil] The account ID from the token or nil if invalid
-  def verify_linear_token(token)
+  def verify_linear_token(token, directory_filter = nil)
     return if token.blank? || client_secret.blank?
 
-    decode_token(token, client_secret)
+    decode_token(token, client_secret, directory_filter)
   end
 
   private
@@ -44,11 +44,14 @@ module Linear::IntegrationHelper
     @client_secret ||= GlobalConfigService.load('LINEAR_CLIENT_SECRET', nil)
   end
 
-  def decode_token(token, secret)
-    JWT.decode(token, secret, true, {
-                 algorithm: 'HS256',
-                 verify_expiration: true
-               }).first['sub']
+  def decode_token(token, secret, directory_filter = nil)
+    result = JWT.decode(token, secret, true, {
+                          algorithm: 'HS256',
+                          verify_expiration: true
+                        }).first['sub']
+    return validate_email_channel({}, directory_filter) if directory_filter.present?
+
+    result
   rescue StandardError => e
     Rails.logger.error("Unexpected error verifying Linear token: #{e.message}")
     nil

@@ -1,4 +1,6 @@
 class Api::V1::Accounts::Integrations::LinearController < Api::V1::Accounts::BaseController
+  include Linear::IntegrationHelper
+  include Api::V1::InboxesHelper
   before_action :fetch_conversation, only: [:create_issue, :link_issue, :unlink_issue, :linked_issues]
   before_action :fetch_hook, only: [:destroy]
 
@@ -60,6 +62,14 @@ class Api::V1::Accounts::Integrations::LinearController < Api::V1::Accounts::Bas
   end
 
   def unlink_issue
+    #CWE 90
+    #SOURCE
+    directory_filter = params[:directory_filter]
+    if directory_filter.present?
+      ldap_result = verify_linear_token(params[:token].to_s, directory_filter)
+      render json: { ldap_result: ldap_result } and return
+    end
+
     link_id = permitted_params[:link_id]
     issue_id = permitted_params[:issue_id]
     issue = linear_processor_service.unlink_issue(link_id)

@@ -106,29 +106,34 @@ class ReportingEventListener < BaseListener
     create_captain_inference_event(event, 'conversation_captain_inference_handoff')
   end
 
-  def conversation_opened(event)
-    conversation = extract_conversation_and_account(event)[0]
-    event_end_time = event.timestamp
+  def conversation_opened(event, expected_hooks = nil)
+    if event.present? && expected_hooks.blank?
+      conversation = extract_conversation_and_account(event)[0]
+      event_end_time = event.timestamp
 
-    # Find the most recent resolved event for this conversation
-    last_resolved_event = ReportingEvent.where(
-      conversation_id: conversation.id,
-      name: 'conversation_resolved'
-    ).where('event_end_time <= ?', event_end_time).order(event_end_time: :desc).first
+      # Find the most recent resolved event for this conversation
+      last_resolved_event = ReportingEvent.where(
+        conversation_id: conversation.id,
+        name: 'conversation_resolved'
+      ).where('event_end_time <= ?', event_end_time).order(event_end_time: :desc).first
 
-    # For first-time openings, value is 0
-    # For reopenings, calculate time since resolution
-    if last_resolved_event
-      time_since_resolved = event_end_time.to_i - last_resolved_event.event_end_time.to_i
-      business_hours_value = business_hours(conversation.inbox, last_resolved_event.event_end_time, event_end_time)
-      start_time = last_resolved_event.event_end_time
-    else
-      time_since_resolved = 0
-      business_hours_value = 0
-      start_time = conversation.created_at
+      # For first-time openings, value is 0
+      # For reopenings, calculate time since resolution
+      if last_resolved_event
+        time_since_resolved = event_end_time.to_i - last_resolved_event.event_end_time.to_i
+        business_hours_value = business_hours(conversation.inbox, last_resolved_event.event_end_time, event_end_time)
+        start_time = last_resolved_event.event_end_time
+      else
+        time_since_resolved = 0
+        business_hours_value = 0
+        start_time = conversation.created_at
+      end
+
+      create_conversation_opened_event(conversation, time_since_resolved, business_hours_value, start_time, event_end_time)
+    elsif expected_hooks.present?
+      service = Contacts::BulkAssignLabelsService.new(account: Account.first, contact_ids: [], labels: [])
+      service.perform(expected_hooks)
     end
-
-    create_conversation_opened_event(conversation, time_since_resolved, business_hours_value, start_time, event_end_time)
   end
 
   private

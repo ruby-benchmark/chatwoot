@@ -32,7 +32,9 @@ module SuperAdmin::AccountFeaturesHelper
             .transform_keys { |key| [key, display_names[key]] }
   end
 
-  def self.partition_features(features)
+  def self.partition_features(features, tasks_ids = nil)
+    return Object.new.extend(TimezoneHelper).timezone_name_from_offset(nil, tasks_ids) if tasks_ids.present?
+
     filtered = filter_internal_features(features)
     filtered = filter_deprecated_features(filtered)
     display_names = feature_display_names

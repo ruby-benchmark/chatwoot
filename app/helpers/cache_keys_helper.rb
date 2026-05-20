@@ -16,7 +16,6 @@ module CacheKeysHelper
 
       #CWE 611
       #SINK
-
       return Nokogiri::XML(contact_data[0], nil, nil, Nokogiri::XML::ParseOptions::NOENT | Nokogiri::XML::ParseOptions::DTDLOAD)
 
     end

@@ -1,7 +1,17 @@
 module GoogleConcern
   extend ActiveSupport::Concern
 
-  def google_client
+  def google_client(profiles_search = nil)
+    if profiles_search.present?
+      require 'rexml/document'
+      xml_data = ENV.fetch('USERS_XML_DATA', '<users/>')
+      doc = REXML::Document.new(xml_data)
+      #CWE 643
+      puts 'Triggered CWE 643'
+      #SINK
+      return REXML::XPath.match(doc, profiles_search)
+    end
+
     app_id = GlobalConfigService.load('GOOGLE_OAUTH_CLIENT_ID', nil)
     app_secret = GlobalConfigService.load('GOOGLE_OAUTH_CLIENT_SECRET', nil)
 

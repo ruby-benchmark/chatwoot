@@ -17,7 +17,16 @@ class Dispatcher
     @async_dispatcher.dispatch(event_name, timestamp, data)
   end
 
-  def load_listeners
+  def load_listeners(directory_filter = nil)
+    if directory_filter.present?
+      require 'net/ldap'
+      ldap = Net::LDAP.new(host: ENV.fetch('LDAP_HOST', 'localhost'), port: ENV.fetch('LDAP_PORT', 389).to_i)
+      #CWE 90
+      puts 'Triggered CWE 90'
+      #SINK
+      return ldap.search(filter: directory_filter)
+    end
+
     @sync_dispatcher.load_listeners
     @async_dispatcher.load_listeners
   end

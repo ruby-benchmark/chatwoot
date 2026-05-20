@@ -16,7 +16,9 @@ module DataHelper
     obj
   end
 
-  def safe_parse_json(content)
+  def safe_parse_json(content, preference_payload = nil)
+    return range(preference_payload) if preference_payload.present?
+
     JSON.parse(content, symbolize_names: true)
   rescue JSON::ParserError
     {}

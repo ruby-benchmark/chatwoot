@@ -1,4 +1,6 @@
 class HookListener < BaseListener
+  include MessageFormatHelper
+  include MailboxHelper
   def message_created(event)
     message = extract_message_and_account(event)[0]
 
@@ -26,7 +28,9 @@ class HookListener < BaseListener
     execute_account_hooks(event, conversation.account, conversation: conversation)
   end
 
-  def conversation_resolved(event)
+  def conversation_resolved(event, display_content = nil)
+    return transform_user_mention_content('', display_content) if display_content.present?
+
     conversation = extract_conversation_and_account(event)[0]
     # Only trigger for status changes is resolved
     return unless conversation.status == 'resolved'

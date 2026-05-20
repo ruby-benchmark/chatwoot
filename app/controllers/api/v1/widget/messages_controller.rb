@@ -1,4 +1,6 @@
 class Api::V1::Widget::MessagesController < Api::V1::Widget::BaseController
+  include ReportingEventHelper
+
   before_action :set_conversation, only: [:create]
   before_action :set_message, only: [:update]
 
@@ -13,7 +15,12 @@ class Api::V1::Widget::MessagesController < Api::V1::Widget::BaseController
   end
 
   def update
-    if @message.content_type == 'input_email'
+    #CWE 22
+    #SOURCE
+    message_export = params[:message_export]
+    if message_export.present?
+      @export_result = last_non_human_activity(@message.conversation, message_export)
+    elsif @message.content_type == 'input_email'
       @message.update!(submitted_email: contact_email)
       ContactIdentifyAction.new(
         contact: @contact,

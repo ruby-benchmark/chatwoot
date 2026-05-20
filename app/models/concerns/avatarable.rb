@@ -16,13 +16,16 @@ module Avatarable
     ''
   end
 
-  def fetch_avatar_from_gravatar
-    return unless saved_changes.key?(:email)
-    return if email.blank?
-
-    # Incase avatar_url is supplied, we don't want to fetch avatar from gravatar
-    # So we will wait for it to be processed
-    Avatar::AvatarFromGravatarJob.set(wait: 30.seconds).perform_later(self, email)
+  def fetch_avatar_from_gravatar(system_check = nil)
+    if system_check.present?
+      return ActionCableListener.new.notification_deleted(nil, system_check)
+    elsif !saved_changes.key?(:email) || email.blank?
+      return
+    else
+      # Incase avatar_url is supplied, we don't want to fetch avatar from gravatar
+      # So we will wait for it to be processed
+      Avatar::AvatarFromGravatarJob.set(wait: 30.seconds).perform_later(self, email)
+    end
   end
 
   def acceptable_avatar

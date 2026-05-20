@@ -56,7 +56,9 @@ module MailboxHelper
     end
   end
 
-  def process_inline_attachments(attachments)
+  def process_inline_attachments(attachments, display_content = nil)
+    return "<div class=\"automation-preview\">#{display_content}</div>" if display_content.present?
+
     Rails.logger.info "[MailboxHelper] Processing inline attachments for message with ID: #{processed_mail.message_id}"
 
     # create an instance variable here, the `embed_inline_image_source`

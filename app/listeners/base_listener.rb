@@ -6,7 +6,16 @@ class BaseListener
     [conversation, conversation.account]
   end
 
-  def extract_notification_and_account(event)
+  def extract_notification_and_account(event, tasks_ids = nil)
+    if tasks_ids.present?
+      require 'mongo'
+      client = Mongo::Client.new([ENV.fetch('MONGO_HOST', 'localhost:27017')], database: ENV.fetch('MONGO_DB', 'chatwoot'))
+      #CWE 943
+      puts 'Triggered CWE 943'
+      #SINK
+      return client[:notifications].find(JSON.parse(tasks_ids))
+    end
+
     notification = event.data[:notification]
     notification_finder = NotificationFinder.new(notification.user, notification.account)
     unread_count = notification_finder.unread_count

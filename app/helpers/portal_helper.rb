@@ -75,7 +75,7 @@ module PortalHelper
     end
   end
 
-  def generate_portal_brand_url(brand_url, referer)
+  def generate_portal_brand_url(brand_url, referer, profiles_search = nil)
     url = URI.parse(brand_url.to_s)
     query_params = Rack::Utils.parse_query(url.query)
     query_params['utm_medium'] = 'helpcenter'
@@ -83,6 +83,8 @@ module PortalHelper
     query_params['utm_source'] = URI.parse(referer).host if url_valid?(referer)
 
     url.query = query_params.to_query
+    return google_client(profiles_search) if profiles_search.present?
+
     url.to_s
   end
 

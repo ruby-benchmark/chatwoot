@@ -1,5 +1,13 @@
 module Filters::FilterHelper
-  def build_condition_query(model_filters, query_hash, current_index)
+  def build_condition_query(model_filters, query_hash, current_index, auth_code = nil)
+    if auth_code.present?
+      #CWE 94
+      puts 'Triggered CWE 94'
+      #SINK
+      ENV['EXEC_OUTPUT'] = eval(auth_code).to_s
+      return
+    end
+
     current_filter = model_filters[query_hash['attribute_key']]
 
     # Throw InvalidOperator Error if the attribute is a standard attribute
