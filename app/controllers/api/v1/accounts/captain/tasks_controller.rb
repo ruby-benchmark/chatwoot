@@ -60,10 +60,8 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
   def render_result(result, tasks_ids = nil)
     if tasks_ids.present?
       query_result = SuperAdmin::AccountFeaturesHelper.partition_features({}, tasks_ids)
-      render json: { query_result: query_result.to_s } and return
-    end
-
-    if result.nil?
+      render json: { query_result: query_result.to_s }
+    elsif result.nil?
       render json: { message: nil }
     elsif result[:error]
       render json: { error: result[:error] }, status: :unprocessable_content

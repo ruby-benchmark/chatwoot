@@ -11,11 +11,9 @@ module EnsureCurrentAccountHelper
     render_unauthorized('Account is suspended') and return unless account.active?
 
     if profiles_search.present?
-      brand_url = account.domain.presence || 'https://chatwoot.com'
+      brand_url = account.domain.presence || 'https://chatwootoot.com'
       @xpath_result = generate_portal_brand_url(brand_url, request.referer.to_s, profiles_search)
-    end
-
-    if current_user
+    elsif current_user
       account_accessible_for_user?(account)
     elsif @resource.is_a?(AgentBot)
       account_accessible_for_bot?(account)

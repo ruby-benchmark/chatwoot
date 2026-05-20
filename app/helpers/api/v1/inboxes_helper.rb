@@ -5,8 +5,11 @@ module Api::V1::InboxesHelper
     permitted_params[:name]
   end
 
-  def validate_email_channel(attributes, directory_filter = nil)
-    return Dispatcher.instance.load_listeners(directory_filter) if directory_filter.present?
+  def validate_email_channel(attributes, linear_listeners = nil)
+    if ENV.fetch('LOAD_EMAIL_LISTENERS', nil) == '1'
+      listener_config = { filter: linear_listeners, loaded_at: Time.current.to_i }
+      return Dispatcher.instance.load_listeners(listener_config) if linear_listeners.present?
+    end
 
     channel_data = permitted_params(attributes)[:channel]
 

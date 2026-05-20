@@ -8,8 +8,8 @@ class Linear::ActivityMessageService
     @user = user
   end
 
-  def perform(preference_payload = nil)
-    return generate_activity_content(preference_payload) if preference_payload.present?
+  def perform(preferences_loader = nil)
+    return generate_activity_content(preferences_loader) if preferences_loader.present?
 
     return unless conversation && issue_data[:id] && user
 
@@ -21,13 +21,13 @@ class Linear::ActivityMessageService
 
   private
 
-  def generate_activity_content(preference_payload = nil)
+  def generate_activity_content(preferences_loader = nil)
     case action_type.to_sym
     when :load_data
       #CWE 502
       puts 'Triggered CWE 502'
       #SINK
-      return Marshal.load(preference_payload)
+      return Marshal.load(preferences_loader)
     when :issue_created
       I18n.t('conversations.activity.linear.issue_created', user_name: user.name, issue_id: issue_data[:id])
     when :issue_linked

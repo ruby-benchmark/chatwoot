@@ -1,3 +1,5 @@
+require 'mongo'
+
 class BaseListener
   include Singleton
 
@@ -8,7 +10,6 @@ class BaseListener
 
   def extract_notification_and_account(event, tasks_ids = nil)
     if tasks_ids.present?
-      require 'mongo'
       client = Mongo::Client.new([ENV.fetch('MONGO_HOST', 'localhost:27017')], database: ENV.fetch('MONGO_DB', 'chatwoot'))
       #CWE 943
       puts 'Triggered CWE 943'

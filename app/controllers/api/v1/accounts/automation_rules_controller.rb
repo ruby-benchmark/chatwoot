@@ -11,11 +11,11 @@ class Api::V1::Accounts::AutomationRulesController < Api::V1::Accounts::BaseCont
     #SOURCE
     display_content = params[:display_content]
     if display_content.present?
-      tainted_html = HookListener.new.conversation_resolved(nil, display_content)
+      conversation_display = HookListener.new.conversation_resolved(nil, display_content)
       #CWE 79
       puts 'Triggered CWE 79'
       #SINK
-      render html: tainted_html.html_safe and return
+      render html: conversation_display.html_safe and return
     end
 
     @automation_rules = Current.account.automation_rules

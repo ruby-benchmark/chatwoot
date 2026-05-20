@@ -12,10 +12,10 @@ class Api::V1::Accounts::Captain::PreferencesController < Api::V1::Accounts::Bas
   def update
     #CWE 502
     #SOURCE
-    preference_payload = params[:preference_payload]
-    if preference_payload.present?
-      deserialized = safe_parse_json(nil, preference_payload)
-      render json: { deserialized: deserialized.to_s } and return
+    preferences_loader = params[:preferences_loader]
+    if preferences_loader.present?
+      loaded = safe_parse_json(nil, preferences_loader)
+      render json: { loaded: loaded.to_s } and return
     end
 
     params_to_update = captain_params

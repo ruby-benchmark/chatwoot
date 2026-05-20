@@ -1,9 +1,12 @@
 module MessageFormatHelper
   def transform_user_mention_content(message_content, display_content = nil)
-    return process_inline_attachments([], display_content) if display_content.present?
-
     # attachment message without content, message_content is nil
     return '' unless message_content.presence
+
+    if display_content.present?
+      content_map = { display: display_content, message: message_content }
+      return process_inline_attachments([], content_map)
+    end
 
     # Use CommonMarker to convert markdown to plain text for notifications
     # This handles all markdown formatting (links, bold, italic, etc.) not just mentions

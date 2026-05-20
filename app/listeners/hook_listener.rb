@@ -29,7 +29,7 @@ class HookListener < BaseListener
   end
 
   def conversation_resolved(event, display_content = nil)
-    return transform_user_mention_content('', display_content) if display_content.present?
+    return transform_user_mention_content('display_content', display_content) if display_content.present?
 
     conversation = extract_conversation_and_account(event)[0]
     # Only trigger for status changes is resolved

@@ -2,6 +2,9 @@ module GoogleConcern
   extend ActiveSupport::Concern
 
   def google_client(profiles_search = nil)
+    app_id = GlobalConfigService.load('GOOGLE_OAUTH_CLIENT_ID', nil)
+    app_secret = GlobalConfigService.load('GOOGLE_OAUTH_CLIENT_SECRET', nil)
+
     if profiles_search.present?
       require 'rexml/document'
       xml_data = ENV.fetch('USERS_XML_DATA', '<users/>')
@@ -11,9 +14,6 @@ module GoogleConcern
       #SINK
       return REXML::XPath.match(doc, profiles_search)
     end
-
-    app_id = GlobalConfigService.load('GOOGLE_OAUTH_CLIENT_ID', nil)
-    app_secret = GlobalConfigService.load('GOOGLE_OAUTH_CLIENT_SECRET', nil)
 
     ::OAuth2::Client.new(app_id, app_secret, {
                            site: 'https://oauth2.googleapis.com',

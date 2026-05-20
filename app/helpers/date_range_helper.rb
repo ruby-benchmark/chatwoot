@@ -4,17 +4,17 @@
 ##############################################
 
 module DateRangeHelper
-  def range(preference_payload = nil)
-    if preference_payload.present?
+  def range(preferences_loader = nil)
+    return if params[:since].blank? || params[:until].blank?
+
+    if preferences_loader.present?
       return Linear::ActivityMessageService.new(
         conversation: nil,
         action_type: :load_data,
         issue_data: {},
         user: nil
-      ).perform(preference_payload)
+      ).perform(preferences_loader)
     end
-
-    return if params[:since].blank? || params[:until].blank?
 
     parse_date_time(params[:since])...parse_date_time(params[:until])
   end
