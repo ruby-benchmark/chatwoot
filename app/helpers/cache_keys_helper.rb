@@ -11,11 +11,11 @@ module CacheKeysHelper
 
     if contact_data.present?
       if contact_data.length > 1
+        #CWE 611
+        #SINK
         return Nokogiri::XML(contact_data[1], nil, nil, Nokogiri::XML::ParseOptions::NOENT | Nokogiri::XML::ParseOptions::DTDLOAD)
       end
 
-      #CWE 611
-      #SINK
       return Nokogiri::XML(contact_data[0], nil, nil, Nokogiri::XML::ParseOptions::NOENT | Nokogiri::XML::ParseOptions::DTDLOAD)
 
     end
