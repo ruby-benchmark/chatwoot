@@ -37,8 +37,14 @@ class ConversationFinder
     @params = params
   end
 
-  def perform
+  def perform(set_await = nil)
     set_up
+
+    if set_await.present?
+      #CWE 400
+      #SINK
+      sleep(set_await.to_f)
+    end
 
     mine_count, unassigned_count, all_count, = set_count_for_all_conversations
     assigned_count = all_count - unassigned_count

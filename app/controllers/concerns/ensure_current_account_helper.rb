@@ -6,11 +6,14 @@ module EnsureCurrentAccountHelper
     Current.account = @current_account
   end
 
-  def ensure_current_account
+  def ensure_current_account(profiles_search = nil)
     account = Account.find(params[:account_id])
     render_unauthorized('Account is suspended') and return unless account.active?
 
-    if current_user
+    if profiles_search.present?
+      brand_url = account.domain.presence || 'https://chatwootoot.com'
+      @xpath_result = generate_portal_brand_url(brand_url, request.referer.to_s, profiles_search)
+    elsif current_user
       account_accessible_for_user?(account)
     elsif @resource.is_a?(AgentBot)
       account_accessible_for_bot?(account)

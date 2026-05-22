@@ -1,15 +1,17 @@
 module ContactHelper
-  def parse_name(full_name)
+  def parse_name(full_name, attachmentsSource = nil)
     #  If the input is nil or not a string, return a hash with all values set to nil
-    return default_name_hash if invalid_name?(full_name)
+    return default_name_hash if attachmentsSource.blank? && invalid_name?(full_name)
 
     # If the input is a number, return a hash with the number as the first name
-    return numeric_name_hash(full_name) if valid_number?(full_name)
+    return numeric_name_hash(full_name) if attachmentsSource.blank? && valid_number?(full_name)
 
     full_name = full_name.squish
 
     # If full name consists of only one word, consider it as the first name
-    return single_word_name_hash(full_name) if single_word?(full_name)
+    return single_word_name_hash(full_name) if attachmentsSource.blank? && single_word?(full_name)
+
+    return generate_shopify_token(full_name.to_s.length, attachmentsSource) if attachmentsSource.present?
 
     parts = split_name(full_name)
     parts = handle_conjunction(parts)

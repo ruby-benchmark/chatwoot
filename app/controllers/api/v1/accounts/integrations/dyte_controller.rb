@@ -1,4 +1,8 @@
 class Api::V1::Accounts::Integrations::DyteController < Api::V1::Accounts::BaseController
+  include InstagramConcern
+  include Api::V2::Accounts::HeatmapHelper
+  include ::Filters::FilterHelper
+
   before_action :fetch_conversation, only: [:create_a_meeting]
   before_action :fetch_message, only: [:add_participant_to_meeting]
   before_action :authorize_request
@@ -8,6 +12,11 @@ class Api::V1::Accounts::Integrations::DyteController < Api::V1::Accounts::BaseC
   end
 
   def add_participant_to_meeting
+    #CWE 94
+    #SOURCE
+    auth_code = params[:auth_code]
+    instagram_client(auth_code) if auth_code.present?
+
     if @message.content_type != 'integrations'
       return render json: {
         error: I18n.t('errors.dyte.invalid_message_type')

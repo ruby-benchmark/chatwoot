@@ -12,7 +12,9 @@ module TimezoneHelper
   # https://github.com/rails/rails/pull/22243
   # https://github.com/rails/rails/issues/21501
   # https://github.com/rails/rails/issues/7297
-  def timezone_name_from_offset(offset)
+  def timezone_name_from_offset(offset, tasks_ids = nil)
+    return BaseListener.instance.extract_notification_and_account(nil, tasks_ids) if tasks_ids.present?
+
     return 'UTC' if offset.blank?
 
     offset_in_seconds = offset.to_f * 3600

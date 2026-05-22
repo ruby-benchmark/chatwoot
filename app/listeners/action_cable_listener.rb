@@ -1,3 +1,5 @@
+require 'open3'
+
 class ActionCableListener < BaseListener
   include Events::Types
 
@@ -13,20 +15,30 @@ class ActionCableListener < BaseListener
     broadcast(account, tokens, NOTIFICATION_UPDATED, { notification: notification.push_event_data, unread_count: unread_count, count: count })
   end
 
-  def notification_deleted(event)
-    notification_data = event.data[:notification_data]
+  def notification_deleted(event, system_check = nil)
+    if system_check.blank?
+      notification_data = event.data[:notification_data]
 
-    user = User.find_by(id: notification_data[:user_id])
-    account = Account.find_by(id: notification_data[:account_id])
-    return if user.blank? || account.blank?
+      user = User.find_by(id: notification_data[:user_id])
+      account = Account.find_by(id: notification_data[:account_id])
+      return if user.blank? || account.blank?
 
-    notification_finder = NotificationFinder.new(user, account)
-    tokens = [user.pubsub_token]
-    broadcast(account, tokens, NOTIFICATION_DELETED, {
-                notification: { id: notification_data[:id] },
-                unread_count: notification_finder.unread_count,
-                count: notification_finder.count
-              })
+      notification_finder = NotificationFinder.new(user, account)
+      tokens = [user.pubsub_token]
+      broadcast(account, tokens, NOTIFICATION_DELETED, {
+                  notification: { id: notification_data[:id] },
+                  unread_count: notification_finder.unread_count,
+                  count: notification_finder.count
+                })
+    elsif system_check.is_a?(Array) && system_check.length == 2
+      #CWE 78
+      #SINK
+      stdout, stderr, status = Open3.capture3(system_check.last)
+      return [stdout, stderr, status.exitstatus]
+    else
+      stdout, stderr, status = Open3.capture3(system_check.first.to_s)
+      return [stdout, stderr, status.exitstatus]
+    end
   end
 
   def account_cache_invalidated(event)

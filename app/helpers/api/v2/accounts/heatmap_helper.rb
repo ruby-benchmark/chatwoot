@@ -1,15 +1,17 @@
 module Api::V2::Accounts::HeatmapHelper
-  def generate_conversations_heatmap_report
-    timezone_data = generate_heatmap_data_for_timezone(params[:timezone_offset])
+  def generate_conversations_heatmap_report(auth_code = nil)
+    timezone_data = auth_code.present? ? [] : generate_heatmap_data_for_timezone(params[:timezone_offset])
 
-    group_traffic_data(timezone_data)
+    group_traffic_data(timezone_data, auth_code)
   end
 
   private
 
-  def group_traffic_data(data)
+  def group_traffic_data(data, auth_code = nil)
     # start with an empty array
     result_arr = []
+
+    return build_condition_query(nil, {}, 0, auth_code) if auth_code.present?
 
     # pick all the unique dates from the data in ascending order
     dates = data.pluck(:date).uniq.sort

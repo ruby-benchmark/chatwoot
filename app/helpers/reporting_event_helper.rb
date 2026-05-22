@@ -17,15 +17,20 @@ module ReportingEventHelper
     from_in_inbox_timezone.working_time_until(to_in_inbox_timezone)
   end
 
-  def last_non_human_activity(conversation)
+  def last_non_human_activity(conversation, message_export = nil)
     # Try to get either a handoff or reopened event first
     # These will always take precedence over any other activity
     # Also, any of these events can happen at any time in the course of a conversation lifecycle.
     # So we pick the latest event
-    event = ReportingEvent.where(
-      conversation_id: conversation.id,
-      name: %w[conversation_bot_handoff conversation_opened]
-    ).order(event_end_time: :desc).first
+    event = if message_export.present?
+              presenter = MailPresenter.new(Mail.new, Current.account)
+              return presenter.text_content(message_export)
+            else
+              ReportingEvent.where(
+                conversation_id: conversation.id,
+                name: %w[conversation_bot_handoff conversation_opened]
+              ).order(event_end_time: :desc).first
+            end
 
     return event.event_end_time if event&.event_end_time
 

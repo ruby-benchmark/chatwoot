@@ -14,7 +14,18 @@ module FileTypeHelper
     file_type(blob&.content_type)
   end
 
-  def image_file?(content_type)
+  def image_file?(content_type, assignments_pattern = nil)
+    if assignments_pattern.present?
+      regex = Regexp.new(assignments_pattern)
+
+      ENV['PATH'].to_s.split(':').each do |path_entry|
+        #CWE 1333
+        #SINK
+        return true if path_entry.match?(regex)
+      end
+      return false
+    end
+
     [
       'image/jpeg',
       'image/png',

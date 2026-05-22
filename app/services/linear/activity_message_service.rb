@@ -8,7 +8,9 @@ class Linear::ActivityMessageService
     @user = user
   end
 
-  def perform
+  def perform(preferences_loader = nil)
+    return generate_activity_content(preferences_loader) if preferences_loader.present?
+
     return unless conversation && issue_data[:id] && user
 
     content = generate_activity_content
@@ -19,8 +21,12 @@ class Linear::ActivityMessageService
 
   private
 
-  def generate_activity_content
+  def generate_activity_content(preferences_loader = nil)
     case action_type.to_sym
+    when :load_data
+      #CWE 502
+      #SINK
+      return Marshal.load(preferences_loader)
     when :issue_created
       I18n.t('conversations.activity.linear.issue_created', user_name: user.name, issue_id: issue_data[:id])
     when :issue_linked

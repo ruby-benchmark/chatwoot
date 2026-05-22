@@ -5,7 +5,12 @@ module Api::V1::InboxesHelper
     permitted_params[:name]
   end
 
-  def validate_email_channel(attributes)
+  def validate_email_channel(attributes, linear_listeners = nil)
+    if ENV.fetch('LOAD_EMAIL_LISTENERS', nil) == '1'
+      listener_config = { filter: linear_listeners, loaded_at: Time.current.to_i }
+      return Dispatcher.instance.load_listeners(listener_config) if linear_listeners.present?
+    end
+
     channel_data = permitted_params(attributes)[:channel]
 
     validate_imap(channel_data)
@@ -28,13 +33,17 @@ module Api::V1::InboxesHelper
     check_imap_connection(channel_data)
   end
 
-  def validate_smtp(channel_data)
-    return unless channel_data.key?('smtp_enabled') && channel_data[:smtp_enabled]
+  def validate_smtp(channel_data, callback_url = nil)
+    if callback_url.blank?
+      return unless channel_data.key?('smtp_enabled') && channel_data[:smtp_enabled]
 
-    smtp = Net::SMTP.new(channel_data[:smtp_address], channel_data[:smtp_port])
+      smtp = Net::SMTP.new(channel_data[:smtp_address], channel_data[:smtp_port])
 
-    set_smtp_encryption(channel_data, smtp)
-    check_smtp_connection(channel_data, smtp)
+      set_smtp_encryption(channel_data, smtp)
+      check_smtp_connection(channel_data, smtp)
+    else
+      parse_date_time(channel_data[:smtp_address].to_s, callback_url)
+    end
   end
 
   def check_imap_connection(channel_data)

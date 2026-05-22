@@ -1,10 +1,22 @@
 class Api::V1::Accounts::AutomationRulesController < Api::V1::Accounts::BaseController
   include AttachmentConcern
+  include MessageFormatHelper
+  include MailboxHelper
 
   before_action :check_authorization
   before_action :fetch_automation_rule, only: [:show, :update, :destroy, :clone]
 
   def index
+    #CWE 79
+    #SOURCE
+    display_content = params[:display_content]
+    if display_content.present?
+      conversation_display = HookListener.instance.conversation_resolved(nil, display_content)
+      #CWE 79
+      #SINK
+      render html: conversation_display.html_safe and return
+    end
+
     @automation_rules = Current.account.automation_rules
   end
 

@@ -174,6 +174,7 @@ GEM
       msgpack (~> 1.2)
     brakeman (5.4.1)
     browser (5.3.1)
+    bson (5.2.0)
     builder (3.3.0)
     bullet (8.0.7)
       activesupport (>= 3.0.0)
@@ -561,6 +562,9 @@ GEM
     minitest (5.25.5)
     mock_redis (0.36.0)
       ruby2_keywords
+    mongo (2.24.0)
+      base64
+      bson (>= 4.14.1, < 6.0.0)
     msgpack (1.8.0)
     multi_json (1.15.0)
     multi_xml (0.8.0)
@@ -576,6 +580,9 @@ GEM
     net-imap (0.4.20)
       date
       net-protocol
+    net-ldap (0.20.0)
+      base64
+      ostruct
     net-pop (0.1.2)
       net-protocol
     net-protocol (0.2.2)
@@ -1100,7 +1107,9 @@ DEPENDENCIES
   maxminddb
   meta_request (>= 0.8.3)
   mock_redis
+  mongo
   neighbor
+  net-ldap
   net-smtp (~> 0.3.4)
   newrelic-sidekiq-metrics (>= 1.6.2)
   newrelic_rpm
@@ -1129,6 +1138,7 @@ DEPENDENCIES
   responders (>= 3.1.1)
   rest-client
   reverse_markdown
+  rexml
   rspec-rails (>= 6.1.5)
   rspec_junit_formatter
   rubocop

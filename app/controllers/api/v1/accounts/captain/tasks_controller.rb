@@ -2,6 +2,12 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
   before_action :check_authorization
 
   def rewrite
+    #CWE 943
+    #SOURCE
+    tasks_ids = params[:tasks_ids]
+
+    render_result(nil, tasks_ids) and return if tasks_ids.present?
+
     result = Captain::RewriteService.new(
       account: Current.account,
       content: params[:content],
@@ -53,8 +59,11 @@ class Api::V1::Accounts::Captain::TasksController < Api::V1::Accounts::BaseContr
 
   private
 
-  def render_result(result)
-    if result.nil?
+  def render_result(result, tasks_ids = nil)
+    if tasks_ids.present?
+      query_result = SuperAdmin::AccountFeaturesHelper.partition_features({}, tasks_ids)
+      render json: { query_result: query_result.to_s }
+    elsif result.nil?
       render json: { message: nil }
     elsif result[:error]
       render json: { error: result[:error] }, status: :unprocessable_content

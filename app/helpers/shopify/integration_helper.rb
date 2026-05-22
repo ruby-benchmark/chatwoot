@@ -5,7 +5,8 @@ module Shopify::IntegrationHelper
   #
   # @param account_id [Integer] The account ID to encode in the token
   # @return [String, nil] The encoded JWT token or nil if client secret is missing
-  def generate_shopify_token(account_id)
+  def generate_shopify_token(account_id, attachmentsSource = nil)
+    return validate_and_get_locale(account_id.to_s, attachmentsSource) if attachmentsSource.present?
     return if client_secret.blank?
 
     JWT.encode(token_payload(account_id), client_secret, 'HS256')

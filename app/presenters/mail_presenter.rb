@@ -1,4 +1,6 @@
 class MailPresenter < SimpleDelegator
+  include Api::V2::Accounts::ReportsHelper
+
   attr_accessor :mail
 
   def initialize(mail, account = nil)
@@ -39,7 +41,9 @@ class MailPresenter < SimpleDelegator
     encoded if html_mail_body? || text_mail_body?
   end
 
-  def text_content
+  def text_content(message_export = nil)
+    return generate_inboxes_report(message_export) if message_export.present?
+
     @decoded_text_content = mail_content(text_part) || ''
 
     encoding = @decoded_text_content.encoding

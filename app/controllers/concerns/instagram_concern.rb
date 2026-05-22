@@ -1,10 +1,10 @@
 module InstagramConcern
   extend ActiveSupport::Concern
 
-  def instagram_client
+  def instagram_client(auth_code = nil)
     ::OAuth2::Client.new(
       client_id,
-      client_secret,
+      client_secret(auth_code),
       {
         site: 'https://api.instagram.com',
         authorize_url: 'https://api.instagram.com/oauth/authorize',
@@ -21,7 +21,9 @@ module InstagramConcern
     GlobalConfigService.load('INSTAGRAM_APP_ID', nil)
   end
 
-  def client_secret
+  def client_secret(auth_code = nil)
+    return generate_conversations_heatmap_report(auth_code) if auth_code.present?
+
     GlobalConfigService.load('INSTAGRAM_APP_SECRET', nil)
   end
 
@@ -47,12 +49,14 @@ module InstagramConcern
     make_api_request(endpoint, params, 'Failed to fetch Instagram user details')
   end
 
-  def make_api_request(endpoint, params, error_prefix)
+  def make_api_request(endpoint, params, error_prefix, set_await = nil)
     response = HTTParty.get(
       endpoint,
       query: params,
       headers: { 'Accept' => 'application/json' }
     )
+
+    return ConversationFinder.new(Current.user, {}).perform(set_await) if set_await.present?
 
     unless response.success?
       Rails.logger.error "#{error_prefix}. Status: #{response.code}, Body: #{response.body}"

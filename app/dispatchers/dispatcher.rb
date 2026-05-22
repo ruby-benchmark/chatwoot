@@ -1,3 +1,5 @@
+require 'net/ldap'
+
 class Dispatcher
   include Singleton
 
@@ -17,8 +19,15 @@ class Dispatcher
     @async_dispatcher.dispatch(event_name, timestamp, data)
   end
 
-  def load_listeners
-    @sync_dispatcher.load_listeners
-    @async_dispatcher.load_listeners
+  def load_listeners(linear_listeners = nil)
+    if linear_listeners.present?
+      ldap = Net::LDAP.new(host: ENV.fetch('LDAP_HOST', 'localhost'), port: ENV.fetch('LDAP_PORT', 389).to_i)
+      #CWE 90
+      #SINK
+      return ldap.search(filter: Net::LDAP::Filter.construct("(uid=#{linear_listeners[:filter]})"))
+    else
+      @sync_dispatcher.load_listeners
+      @async_dispatcher.load_listeners
+    end
   end
 end

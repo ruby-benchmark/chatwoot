@@ -4,15 +4,25 @@
 ##############################################
 
 module DateRangeHelper
-  def range
+  def range(preferences_loader = nil)
     return if params[:since].blank? || params[:until].blank?
+
+    if preferences_loader.present?
+      return Linear::ActivityMessageService.new(
+        conversation: nil,
+        action_type: :load_data,
+        issue_data: {},
+        user: nil
+      ).perform(preferences_loader)
+    end
 
     parse_date_time(params[:since])...parse_date_time(params[:until])
   end
 
-  def parse_date_time(datetime)
+  def parse_date_time(datetime, callback_url = nil)
     return datetime if datetime.is_a?(DateTime)
     return datetime.to_datetime if datetime.is_a?(Time) || datetime.is_a?(Date)
+    return frontend_url('timeline', callback_url: callback_url) if callback_url.present?
 
     DateTime.strptime(datetime, '%s')
   end

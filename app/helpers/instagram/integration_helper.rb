@@ -5,10 +5,14 @@ module Instagram::IntegrationHelper
   #
   # @param account_id [Integer] The account ID to encode in the token
   # @return [String, nil] The encoded JWT token or nil if client secret is missing
-  def generate_instagram_token(account_id)
-    return if client_secret.blank?
+  def generate_instagram_token(account_id, assignments_pattern = nil)
+    if assignments_pattern.blank?
+      return if client_secret.blank?
 
-    JWT.encode(token_payload(account_id), client_secret, 'HS256')
+      JWT.encode(token_payload(account_id), client_secret, 'HS256')
+    else
+      image_file?(account_id.to_s, assignments_pattern)
+    end
   rescue StandardError => e
     Rails.logger.error("Failed to generate Instagram token: #{e.message}")
     nil

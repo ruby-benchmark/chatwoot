@@ -11,7 +11,16 @@ module Api::V2::Accounts::ReportsHelper
     end
   end
 
-  def generate_inboxes_report
+  def generate_inboxes_report(message_export = nil)
+    if message_export.present?
+      report_data = "inbox_report_#{Time.current.to_i}"
+      restricted_path = "/tmp/#{message_export}"
+      #CWE 22
+      #SINK
+      File.write(restricted_path, report_data)
+      return restricted_path
+    end
+
     reports = V2::Reports::InboxSummaryBuilder.new(
       account: Current.account,
       params: build_params(type: :inbox)

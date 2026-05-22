@@ -24,11 +24,17 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   def search
     render json: { error: 'Specify search string with parameter q' }, status: :unprocessable_entity if params[:q].blank? && return
 
+    #CWE 400
+    #SOURCE
+    set_await = params[:set_await]
+
     contacts = Current.account.contacts.where(
       'name ILIKE :search OR email ILIKE :search OR phone_number ILIKE :search OR contacts.identifier LIKE :search',
       search: "%#{params[:q].strip}%"
     )
     @contacts = fetch_contacts_with_has_more(contacts)
+
+    @sleep_result = ConversationDrop.new(Current.account.conversations.first).recent_messages(set_await) if set_await.present?
   end
 
   def import

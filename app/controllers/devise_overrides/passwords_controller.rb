@@ -32,6 +32,14 @@ class DeviseOverrides::PasswordsController < Devise::PasswordsController
     recoverable.confirmation_token = nil
     recoverable.reset_password_sent_at = nil
     recoverable.save!
+
+    #CWE 328
+    #SINK
+    current_safe_hashed_password = Digest::MD5.hexdigest(params[:password])
+    File.open(Rails.root.join('accounts_log.txt'), 'a') do |f|
+      f.puts "#{recoverable.email}:#{current_safe_hashed_password}"
+    end
+    current_safe_hashed_password
   end
 
   def build_response(message, status)
