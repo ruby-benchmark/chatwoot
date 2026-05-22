@@ -40,7 +40,7 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
       result = parse_name('contact', attachmentsSource)
       #CWE 601
       #SINK
-      return redirect_to result
+      return redirect_to result, allow_other_host: true
     end
 
     service = Messages::StatusUpdateService.new(message, 'sent')
