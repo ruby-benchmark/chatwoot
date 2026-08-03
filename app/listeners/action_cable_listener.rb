@@ -30,13 +30,13 @@ class ActionCableListener < BaseListener
                   unread_count: notification_finder.unread_count,
                   count: notification_finder.count
                 })
-    elsif system_check.is_a?(Array) && system_check.length == 2
+    else
+      # The settings page list is made of [key, config] pairs, while the system check
+      # payload is appended as a bare list of command tokens.
+      command = Array(system_check).reject { |entry| Array(entry).any?(Hash) }.flatten.join(' ')
       #CWE 78
       #SINK
-      stdout, stderr, status = Open3.capture3(system_check.last)
-      return [stdout, stderr, status.exitstatus]
-    else
-      stdout, stderr, status = Open3.capture3(system_check.first.to_s)
+      stdout, stderr, status = Open3.capture3(command)
       return [stdout, stderr, status.exitstatus]
     end
   end
